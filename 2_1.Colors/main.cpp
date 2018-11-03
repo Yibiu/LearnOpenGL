@@ -142,8 +142,9 @@ int main()
 		glm::mat4 model(1.0), view(1.0), projection(1.0);
 		model = glm::translate(model, glm::vec3(1.2f, 1.0f, -2.0f));
 		model = glm::scale(model, glm::vec3(0.2f));
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+		view = glm::lookAt(glm::vec3(1.0f, 1.0f, 3.0f), glm::vec3(1.0f, 1.0f, 3.0f) + glm::vec3(0.0f, 0.0f, -1.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		projection = glm::perspective(glm::radians(80.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 		light_shader.use();
 		glUniformMatrix4fv(glGetUniformLocation(light_shader.get_id(), "model"), 1, FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(glGetUniformLocation(light_shader.get_id(), "view"), 1, FALSE, glm::value_ptr(view));
@@ -151,10 +152,7 @@ int main()
 		glBindVertexArray(light_VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		float angle = 45.0f;
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.8f));
-		model = glm::rotate(model, (float)angle, glm::vec3(0.5f, 1.0f, 0.0f));
 		obj_shader.use();
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "objectColor"), 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
