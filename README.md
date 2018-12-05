@@ -19,3 +19,10 @@ Lib:
 Src:
 ..\3rdPart\glad\src\glad.cpp;
 
+
+
+
+
+http://blog.csdn.net/column/details/13062.html?&page=2
+https://learnopengl-cn.github.io/
+https://edu.csdn.net/course/detail/2269
