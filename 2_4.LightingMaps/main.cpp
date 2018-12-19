@@ -265,7 +265,7 @@ int main()
 		glm::mat4 model(1.0);
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "lightPos"), 1, glm::value_ptr(light_position));
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "viewPos"), 1, glm::value_ptr(camera_pos));
-		glUniform1f(glGetUniformLocation(obj_shader.get_id(), "material.shininess"), 64.0f);
+		glUniform1f(glGetUniformLocation(obj_shader.get_id(), "material.shininess"), 32.0f);
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "light.ambient"), 1, glm::value_ptr(glm::vec3(0.2f, 0.2f, 0.2f)));
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "light.diffuse"), 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
 		glUniform3fv(glGetUniformLocation(obj_shader.get_id(), "light.specular"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
