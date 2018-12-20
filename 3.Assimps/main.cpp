@@ -18,6 +18,7 @@ using namespace std;
 * @ref:
 *	https://learnopengl-cn.github.io/03%20Model%20Loading/01%20Assimp/
 *	https://learnopengl-cn.github.io/03%20Model%20Loading/02%20Mesh/
+*	https://learnopengl-cn.github.io/03%20Model%20Loading/03%20Model/
 */
 
 

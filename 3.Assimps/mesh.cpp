@@ -15,7 +15,7 @@ CNGLMesh::~CNGLMesh()
 {
 }
 
-void CNGLMesh::load(const vector<ngl_vertex_t> &vertices, const vector<unsigned int> &indices,
+void CNGLMesh::load(const vector<ngl_vertice_t> &vertices, const vector<uint32_t> &indices,
 	const vector<ngl_texture_t> &textures)
 {
 	_vertices = vertices;
@@ -25,13 +25,13 @@ void CNGLMesh::load(const vector<ngl_vertex_t> &vertices, const vector<unsigned 
 	_setup_mesh();
 }
 
-void CNGLMesh::draw(unsigned int shader)
+void CNGLMesh::draw(uint32_t shader)
 {
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int normalNr = 1;
-	unsigned int heightNr = 1;
-	for (unsigned int i = 0; i < _textures.size(); i++) {
+	uint32_t diffuseNr = 1;
+	uint32_t specularNr = 1;
+	uint32_t normalNr = 1;
+	uint32_t heightNr = 1;
+	for (uint32_t i = 0; i < _textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		string number;
 		string name = _textures[i].type;
@@ -62,19 +62,19 @@ void CNGLMesh::_setup_mesh()
 	glGenBuffers(1, &_EBO);
 	glBindVertexArray(_VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(ngl_vertex_t), &_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(ngl_vertice_t), &_vertices[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(unsigned int), &_indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(uint32_t), &_indices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertex_t), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertice_t), (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertex_t), (void*)offsetof(ngl_vertex_t, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertice_t), (void*)offsetof(ngl_vertice_t, normal));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ngl_vertex_t), (void*)offsetof(ngl_vertex_t, texcoords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ngl_vertice_t), (void*)offsetof(ngl_vertice_t, texcoords));
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertex_t), (void*)offsetof(ngl_vertex_t, tangent));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertice_t), (void*)offsetof(ngl_vertice_t, tangent));
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertex_t), (void*)offsetof(ngl_vertex_t, bitangent));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ngl_vertice_t), (void*)offsetof(ngl_vertice_t, bitangent));
 	glBindVertexArray(0);
 }
 
