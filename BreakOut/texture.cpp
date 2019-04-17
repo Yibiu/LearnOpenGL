@@ -4,12 +4,13 @@
 
 CNGLTexture::CNGLTexture()
 {
+	_type = CNGLObject::OBJ_TEXTURE;
+	_name = "";
+
 	_id = 0;
 	_width = 0;
 	_height = 0;
 	_fmt = 0;
-
-	_type = CNGLObject::OBJ_TEXTURE;
 }
 
 CNGLTexture::~CNGLTexture()
@@ -26,7 +27,23 @@ bool CNGLTexture::init(GLchar *path_ptr)
 
 	_width = width;
 	_height = height;
-	_fmt = 4 == channels ? GL_RGBA : GL_RGB;
+	_fmt = 0;
+	switch (channels)
+	{
+	case 1:
+		_fmt = GL_RED;
+		break;
+	case 3:
+		_fmt = GL_RGB;
+		break;
+	case 4:
+		_fmt = GL_RGBA;
+		break;
+	default:
+		break;
+	}
+	if (0 == _fmt)
+		return false;
 	glGenTextures(1, &_id);
 	glBindTexture(GL_TEXTURE_2D, _id);
 	glTexImage2D(GL_TEXTURE_2D, 0, _fmt, _width, _height, 0, _fmt, GL_UNSIGNED_BYTE, data_ptr);
@@ -45,7 +62,7 @@ void CNGLTexture::uninit()
 	glDeleteTextures(1, &_id);
 }
 
-void CNGLTexture::update(const uint8_t *data_ptr)
+void CNGLTexture::update(const GLchar *data_ptr)
 {
 	glTexImage2D(GL_TEXTURE_2D, 0, _fmt, _width, _height, 0, _fmt, GL_UNSIGNED_BYTE, data_ptr);
 }

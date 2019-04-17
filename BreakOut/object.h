@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
 #include <string>
-using namespace std;
 
 
 /**
@@ -24,11 +23,11 @@ public:
 	virtual ~CNGLObject();
 
 	obj_type_t get_type();
-	void set_name(const string &name);
-	string get_name();
+	void set_name(const std::string &name);
+	std::string get_name();
 
 protected:
 	obj_type_t _type;
-	string _name;
+	std::string _name;
 };
 

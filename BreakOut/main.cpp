@@ -16,7 +16,7 @@ using namespace std;
 #define WINDOW_HEIGHT	600
 
 
-CNGLGame game;
+CGame game;
 
 // Window size change callback
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

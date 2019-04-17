@@ -17,7 +17,7 @@ public:
 
 	bool init(GLchar *path_ptr);
 	void uninit();
-	void update(const uint8_t *data_ptr);
+	void update(const GLchar *data_ptr);
 	void bind();
 
 protected:

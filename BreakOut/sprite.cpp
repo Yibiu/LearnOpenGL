@@ -51,7 +51,7 @@ void CSprite::draw(CNGLShader &shader, CNGLTexture &texture, sprite_date_t &data
 	model = glm::translate(model, glm::vec3(-0.5f * data.width, -0.5f * data.height, 0.0f));
 	model = glm::scale(model, glm::vec3(data.width, data.height, 1.0f));
 	shader.set_mat4("model", model);
-	shader.set_vec3f("spriteColor", data.color);
+	shader.set_vec3f("sprite_color", data.color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(_VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);

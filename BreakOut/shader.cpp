@@ -3,9 +3,10 @@
 
 CNGLShader::CNGLShader()
 {
-	_id = 0;
-
 	_type = CNGLObject::OBJ_SHADER;
+	_name = "";
+
+	_id = 0;
 }
 
 CNGLShader::~CNGLShader()
