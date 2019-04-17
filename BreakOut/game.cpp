@@ -4,14 +4,31 @@
 // CGameLevel
 CGameLevel::CGameLevel()
 {
+	_sprites.clear();
 }
 
 CGameLevel::~CGameLevel()
 {
 }
 
-void CGameLevel::init(const GLchar *cfg_ptr)
+bool CGameLevel::init(const GLchar *cfg_ptr)
 {
+	std::ifstream in(cfg_ptr);
+	if (!in.is_open())
+		return false;
+
+	uint32_t line_count = 0;
+	std::string line;
+	while (getline(in, line))
+	{
+		std::vector<uint32_t> elems;
+		_parse_line(line, elems);
+
+		sprite_date_t data;
+	}
+
+	in.close();
+	return true;
 }
 
 void CGameLevel::uinit()
@@ -20,6 +37,23 @@ void CGameLevel::uinit()
 
 void CGameLevel::draw(CNGLShader &shader, CNGLTexture &texture)
 {
+}
+
+
+void CGameLevel::_parse_line(std::string str, std::vector<uint32_t> &elems)
+{
+	elems.clear();
+	if (str.empty())
+		return;
+
+	size_t pos = str.find(",");
+	while (pos != std::string::npos)
+	{
+		elems.push_back(std::stoi(str.substr(0, pos)));
+		str = str.substr(pos + 1);
+		pos = str.find(",");
+	}
+	elems.push_back(std::stoi(str));
 }
 
 

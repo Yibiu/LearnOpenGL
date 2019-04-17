@@ -17,12 +17,15 @@ public:
 	CGameLevel();
 	virtual ~CGameLevel();
 
-	void init(const GLchar *cfg_ptr);
+	bool init(const GLchar *cfg_ptr);
 	void uinit();
 	void draw(CNGLShader &shader, CNGLTexture &texture);
 
 protected:
-	std::vector<CSprite> _sprites;
+	void _parse_line(std::string str, std::vector<uint32_t> &elems);
+
+protected:
+	std::vector<sprite_date_t> _sprites;
 };
 
 
