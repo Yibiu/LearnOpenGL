@@ -12,10 +12,6 @@ using namespace std;
 */
 
 
-#define WINDOW_WIDTH	800
-#define WINDOW_HEIGHT	600
-
-
 CGame game;
 
 // Window size change callback

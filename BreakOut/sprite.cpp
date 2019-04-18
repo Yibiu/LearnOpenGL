@@ -39,7 +39,7 @@ void CSprite::uninit()
 	glDeleteVertexArrays(1, &_VAO);
 }
 
-void CSprite::draw(CNGLShader &shader, CNGLTexture &texture, sprite_date_t &data)
+void CSprite::draw(CNGLShader &shader, CNGLTexture &texture, sprite_data_t &data)
 {
 	shader.use();
 	texture.bind();

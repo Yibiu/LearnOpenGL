@@ -4,16 +4,17 @@
 #include "texture.h"
 
 
-typedef struct _sprite_date
+typedef struct _sprite_data
 {
-	uint32_t top;
-	uint32_t left;
-	uint32_t width;
-	uint32_t height;
+	bool hidden;
+	int top;
+	int left;
+	int width;
+	int height;
 
 	float rotate;
 	glm::vec3 color;
-} sprite_date_t;
+} sprite_data_t;
 
 
 class CSprite
@@ -24,7 +25,7 @@ public:
 
 	void init();
 	void uninit();
-	void draw(CNGLShader &shader, CNGLTexture &texture, sprite_date_t &data);
+	void draw(CNGLShader &shader, CNGLTexture &texture, sprite_data_t &data);
 
 protected:
 	GLuint _VAO;
