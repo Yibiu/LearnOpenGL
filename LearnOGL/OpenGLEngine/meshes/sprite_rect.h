@@ -6,7 +6,7 @@
 * @brief:
 * Sprite - Rectangle
 */
-class CGLRectangle : public ICGLSprite
+class CGLRectangle : public CGLSprite
 {
 public:
 	CGLRectangle();
@@ -15,7 +15,7 @@ public:
 	// ICGLSprite
 	virtual bool init();
 	virtual void uninit();
-	virtual bool draw(sprite_data_t *data);
+	virtual bool draw();
 
 protected:
 	GLuint _VAO;

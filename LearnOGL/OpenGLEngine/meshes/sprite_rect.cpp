@@ -14,14 +14,14 @@ CGLRectangle::~CGLRectangle()
 
 bool CGLRectangle::init()
 {
-	float vertices[] = {
+	GLfloat vertices[] = {
 		// positions       // texture coords
 		0.5f,  0.5f, 0.0f, 1.0f, 1.0f,	// Top-right
 		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,	// Bottom-right
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,	// Bottom-left
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f	// Top-left
 	};
-	unsigned int indices[] = {
+	GLuint indices[] = {
 		0, 1, 3,	// Triangle 1
 		1, 2, 3		// Triangle 2
 	};
@@ -59,7 +59,7 @@ void CGLRectangle::uninit()
 	}
 }
 
-bool CGLRectangle::draw(sprite_data_t *data)
+bool CGLRectangle::draw()
 {
 	if (_VAO > 0) {
 		glBindVertexArray(_VAO);

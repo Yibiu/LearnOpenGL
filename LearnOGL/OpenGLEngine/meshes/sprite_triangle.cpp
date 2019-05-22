@@ -43,7 +43,7 @@ void CGLTriangle::uninit()
 	}
 }
 
-bool CGLTriangle::draw(sprite_data_t *data)
+bool CGLTriangle::draw()
 {
 	if (_VAO > 0) {
 		glBindVertexArray(_VAO);

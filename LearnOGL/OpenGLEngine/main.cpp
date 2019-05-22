@@ -5,6 +5,7 @@
 #include "meshes/factory.h"
 #include "meshes/sprite_triangle.h"
 #include "meshes/sprite_rect.h"
+#include "meshes/sprite_cube.h"
 
 
 #define WINDOW_WIDTH		800
@@ -66,31 +67,40 @@ int main()
 	triangle.init();
 	CGLRectangle rectangle;
 	rectangle.init();
+	CGLCube cube;
+	cube.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window_ptr))
 	{
 		process_input(window_ptr);
 
 		// Draw renderer... 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw...
 		//
 		//raw_shader_ptr->use();
-		//triangle.draw(NULL);
+		//triangle.draw();
+		//
+		//tex_shader_ptr->use();
+		//glActiveTexture(GL_TEXTURE0);
+		//face_texture_ptr->use();
+		//rectangle.draw();
 		//
 		tex_shader_ptr->use();
 		glActiveTexture(GL_TEXTURE0);
 		face_texture_ptr->use();
-		rectangle.draw(NULL);
+		cube.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
 	}
 
+	/////////////////////////////////////////////////////
 	raw_shader_ptr->uninit();
 	factory.destroy_shader("raw");
 	tex_shader_ptr->uninit();
@@ -101,6 +111,8 @@ int main()
 
 	triangle.uninit();
 	rectangle.uninit();
+	cube.uninit();
+	/////////////////////////////////////////////////////
 
 	// Terminate
 	glfwTerminate();

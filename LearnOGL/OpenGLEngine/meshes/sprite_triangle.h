@@ -9,7 +9,7 @@
 * - Gray triangle(no shader)
 * - Color triangle(with shader)
 */
-class CGLTriangle : public ICGLSprite
+class CGLTriangle : public CGLSprite
 {
 public:
 	CGLTriangle();
@@ -18,7 +18,7 @@ public:
 	// ICGLSprite
 	virtual bool init();
 	virtual void uninit();
-	virtual bool draw(sprite_data_t *data);
+	virtual bool draw();
 
 protected:
 	GLuint _VAO;

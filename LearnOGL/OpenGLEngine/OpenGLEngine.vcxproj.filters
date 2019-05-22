@@ -39,6 +39,15 @@
     <ClCompile Include="meshes\sprite_rect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="meshes\sprite_cube.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="control\camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="meshes\sprite.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\defines.h">
@@ -63,6 +72,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="meshes\sprite_rect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes\sprite_cube.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="control\camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

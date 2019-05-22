@@ -2,24 +2,30 @@
 #include "object.h"
 
 
-typedef struct _sprite_data
-{
-	rect_t position;
-} sprite_data_t;
-
-
 /**
 * @brief:
 * Basic class for all sprites
 */
-class ICGLSprite : public CGLObject
+class CGLSprite : public CGLObject
 {
 public:
-	ICGLSprite() {}
-	virtual ~ICGLSprite() {}
+	typedef struct _sprite_data
+	{
+		glm::mat4 model;
+	} sprite_data_t;
+
+public:
+	CGLSprite();
+	virtual ~CGLSprite();
 
 	virtual bool init() = 0;
 	virtual void uninit() = 0;
-	virtual bool draw(sprite_data_t *data) = 0;
+	virtual bool draw() = 0;
+
+	void set_model(const glm::mat4 &model);
+	glm::mat4 get_model();
+
+protected:
+	sprite_data_t _data;
 };
 
