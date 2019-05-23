@@ -2,9 +2,15 @@
 #include "../common/defines.h"
 
 
+#define MOVING_SPEED_FACTOR		(2.5f)
+#define ROTATING_SPEED_FACTOR	(0.1f)
+
+
 /**
 * @brief:
 * Camera for OpenGL
+*
+* Right-handed coordination
 */
 class CGLCamera
 {
@@ -45,6 +51,10 @@ protected:
 
 	float _yaw;
 	float _pitch;
+
+	bool _first_mouse;
+	float _last_mouse_x;
+	float _last_mouse_y;
 	float _fov;
 };
 
