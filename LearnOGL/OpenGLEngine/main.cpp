@@ -105,8 +105,16 @@ int main()
 	triangle.init();
 	CGLRectangle rectangle;
 	rectangle.init();
-	CGLCube cube;
-	cube.init();
+	CGLCube cube0;
+	cube0.init();
+	glm::mat4 model0(1.0f);
+	model0 = glm::translate(model0, glm::vec3(1.0f, 0.0f, 0.0f));
+	cube0.set_model(model0);
+	CGLCube cube1;
+	cube1.init();
+	glm::mat4 model1(1.0f);
+	model1 = glm::scale(model1, glm::vec3(0.5f, 0.5f, 0.5f));
+	cube1.set_model(model1);
 	/////////////////////////////////////////////////////
 
 	// Main loop
@@ -124,7 +132,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw...
-		//
 		//raw_shader_ptr->use();
 		//triangle.draw();
 		//
@@ -134,12 +141,14 @@ int main()
 		//rectangle.draw();
 		//
 		world_shader_ptr->use();
-		world_shader_ptr->set_mat4("model", cube.get_model());
+		world_shader_ptr->set_mat4("model", cube0.get_model());
 		world_shader_ptr->set_mat4("view", camera.get_view());
 		world_shader_ptr->set_mat4("projection", camera.get_perspective());
 		glActiveTexture(GL_TEXTURE0);
 		face_texture_ptr->use();
-		cube.draw();
+		cube0.draw();
+		world_shader_ptr->set_mat4("model", cube1.get_model());
+		cube1.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
@@ -158,7 +167,8 @@ int main()
 
 	triangle.uninit();
 	rectangle.uninit();
-	cube.uninit();
+	cube0.uninit();
+	cube1.uninit();
 	/////////////////////////////////////////////////////
 
 	// Terminate
