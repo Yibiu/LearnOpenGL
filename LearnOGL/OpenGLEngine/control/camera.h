@@ -33,6 +33,9 @@ public:
 	void set_position(const glm::vec3 &pos);
 	void set_front(const glm::vec3 &front);
 	void set_up(const glm::vec3 &up);
+	glm::vec3 get_position();
+	glm::vec3 get_front();
+	glm::vec3 get_up();
 
 	void update_moving(moving_type_t type, float dt);
 	void update_rotating(float xpos, float ypos);

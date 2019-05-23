@@ -39,6 +39,21 @@ void CGLCamera::set_up(const glm::vec3 &up)
 	_camera_up = up;
 }
 
+glm::vec3 CGLCamera::get_position()
+{
+	return _camera_pos;
+}
+
+glm::vec3 CGLCamera::get_front()
+{
+	return _camera_front;
+}
+
+glm::vec3 CGLCamera::get_up()
+{
+	return _camera_up;
+}
+
 void CGLCamera::update_moving(moving_type_t type, float dt)
 {
 	float speed = MOVING_SPEED_FACTOR * dt;

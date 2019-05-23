@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "control/camera.h"
+#include "lights/lights.h"
 #include "meshes/factory.h"
 #include "meshes/sprite_triangle.h"
 #include "meshes/sprite_rect.h"
@@ -16,6 +17,7 @@
 float last_time = 0.0f;
 float delta_time = 0.0f;
 CGLCamera camera(WINDOW_WIDTH, WINDOW_HEIGHT);
+CGLLights lights(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 // Window size changed callback
@@ -87,20 +89,33 @@ int main()
 
 	/////////////////////////////////////////////////////
 	CGLFactory factory;
+	// Shader
 	CGLShader *raw_shader_ptr = factory.create_shader("raw");
 	raw_shader_ptr->init("./resources/raw.vs", "./resources/raw.fs", true);
+	// Shader(texture)
 	CGLShader *tex_shader_ptr = factory.create_shader("tex");
 	tex_shader_ptr->init("./resources/tex.vs", "./resources/tex.fs", true);
 	tex_shader_ptr->use();
 	tex_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
+	// Shader(texture, normal, coords)
 	CGLShader *world_shader_ptr = factory.create_shader("world");
-	world_shader_ptr->init("./resources/world.vs", "./resources/tex.fs", true);
+	world_shader_ptr->init("./resources/world.vs", "./resources/world.fs", true);
 	world_shader_ptr->use();
 	world_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
+	// Shader(texture, normal, coords, lights)
+	CGLShader *lights_shader_ptr = factory.create_shader("lights");
+	lights_shader_ptr->init("./resources/lights.vs", "./resources/lights.fs", true);
+	lights_shader_ptr->use();
+	lights_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
 
+	// Texture(face.png)
 	CGLTexture *face_texture_ptr = factory.create_texture("face");
 	face_texture_ptr->init("./resources/face.png", false, true);
+	// Texture(container.jpg)
+	CGLTexture *container_texture_ptr = factory.create_texture("container");
+	container_texture_ptr->init("./resources/container.jpg", false, true);
 
+	// Objects
 	CGLTriangle triangle;
 	triangle.init();
 	CGLRectangle rectangle;
@@ -115,6 +130,8 @@ int main()
 	glm::mat4 model1(1.0f);
 	model1 = glm::scale(model1, glm::vec3(0.5f, 0.5f, 0.5f));
 	cube1.set_model(model1);
+	CGLCube cube;
+	cube.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
@@ -132,6 +149,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw...
+		//
 		//raw_shader_ptr->use();
 		//triangle.draw();
 		//
@@ -140,31 +158,49 @@ int main()
 		//face_texture_ptr->use();
 		//rectangle.draw();
 		//
-		world_shader_ptr->use();
-		world_shader_ptr->set_mat4("model", cube0.get_model());
-		world_shader_ptr->set_mat4("view", camera.get_view());
-		world_shader_ptr->set_mat4("projection", camera.get_perspective());
+		//world_shader_ptr->use();
+		//world_shader_ptr->set_mat4("model", cube0.get_model());
+		//world_shader_ptr->set_mat4("view", camera.get_view());
+		//world_shader_ptr->set_mat4("projection", camera.get_perspective());
+		//glActiveTexture(GL_TEXTURE0);
+		//face_texture_ptr->use();
+		//cube0.draw();
+		//world_shader_ptr->set_mat4("model", cube1.get_model());
+		//cube1.draw();
+		//
+		lights_shader_ptr->use();
+		lights_shader_ptr->set_mat4("model", cube.get_model());
+		lights_shader_ptr->set_mat4("view", camera.get_view());
+		lights_shader_ptr->set_mat4("projection", camera.get_perspective());
+		lights_shader_ptr->set_vec3f("light_pos", lights.get_light_position());
+		lights_shader_ptr->set_vec3f("light_color", lights.get_light_color());
+		lights_shader_ptr->set_vec3f("camera_pos", camera.get_position());
 		glActiveTexture(GL_TEXTURE0);
-		face_texture_ptr->use();
-		cube0.draw();
-		world_shader_ptr->set_mat4("model", cube1.get_model());
-		cube1.draw();
+		container_texture_ptr->use();
+		cube.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
 	}
 
 	/////////////////////////////////////////////////////
+	// Shaders
 	raw_shader_ptr->uninit();
 	factory.destroy_shader(raw_shader_ptr->get_name());
 	tex_shader_ptr->uninit();
 	factory.destroy_shader(tex_shader_ptr->get_name());
 	world_shader_ptr->uninit();
 	factory.destroy_shader(world_shader_ptr->get_name());
+	lights_shader_ptr->uninit();
+	factory.destroy_shader(lights_shader_ptr->get_name());
 
+	// Textures
 	face_texture_ptr->uninit();
 	factory.destroy_texture(face_texture_ptr->get_name());
+	container_texture_ptr->uninit();
+	factory.destroy_texture(container_texture_ptr->get_name());
 
+	// Objects
 	triangle.uninit();
 	rectangle.uninit();
 	cube0.uninit();
