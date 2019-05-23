@@ -3,23 +3,36 @@
 
 
 /**
-* Lights effect for OpenGL
+* Light effect for OpenGL
 */
-class CGLLights
+class CGLLight
 {
 public:
-	CGLLights(glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f));
-	virtual ~CGLLights();
+	typedef struct _light_data
+	{
+		glm::vec3 position;
 
-	void set_light_position(const glm::vec3 &light_pos);
-	void set_light_color(const glm::vec3 &light_color);
-	glm::vec3 get_light_position();
-	glm::vec3 get_light_color();
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+	} light_data_t;
+
+public:
+	CGLLight(glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 0.0f));
+	virtual ~CGLLight();
+
+	void set_position(const glm::vec3 &pos);
+	glm::vec3 get_position();
+
+	void set_ambient(const glm::vec3 &ambient);
+	void set_diffuse(const glm::vec3 &diffuse);
+	void set_specular(const glm::vec3 &specular);
+	glm::vec3 get_ambient();
+	glm::vec3 get_diffuse();
+	glm::vec3 get_specular();
 
 protected:
-	glm::vec3 _light_pos;
-	glm::vec3 _light_color;
+	light_data_t _data;
 };
 
 

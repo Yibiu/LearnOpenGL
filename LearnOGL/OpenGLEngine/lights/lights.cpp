@@ -1,33 +1,52 @@
 #include "lights.h"
 
 
-CGLLights::CGLLights(glm::vec3 light_pos, glm::vec3 light_color)
+CGLLight::CGLLight(glm::vec3 light_pos)
 {
-	_light_pos = light_pos;
-	_light_color = light_color;
+	_data.position = light_pos;
 }
 
-CGLLights::~CGLLights()
+CGLLight::~CGLLight()
 {
 }
 
-void CGLLights::set_light_position(const glm::vec3 &light_pos)
+void CGLLight::set_position(const glm::vec3 &pos)
 {
-	_light_pos = light_pos;
+	_data.position = pos;
 }
 
-void CGLLights::set_light_color(const glm::vec3 &light_color)
+glm::vec3 CGLLight::get_position()
 {
-	_light_color = light_color;
+	return _data.position;
 }
 
-glm::vec3 CGLLights::get_light_position()
+void CGLLight::set_ambient(const glm::vec3 &ambient)
 {
-	return _light_pos;
+	_data.ambient = ambient;
 }
 
-glm::vec3 CGLLights::get_light_color()
+void CGLLight::set_diffuse(const glm::vec3 &diffuse)
 {
-	return _light_color;
+	_data.diffuse = diffuse;
+}
+
+void CGLLight::set_specular(const glm::vec3 &specular)
+{
+	_data.specular = specular;
+}
+
+glm::vec3 CGLLight::get_ambient()
+{
+	return _data.ambient;
+}
+
+glm::vec3 CGLLight::get_diffuse()
+{
+	return _data.diffuse;
+}
+
+glm::vec3 CGLLight::get_specular()
+{
+	return _data.specular;
 }
 

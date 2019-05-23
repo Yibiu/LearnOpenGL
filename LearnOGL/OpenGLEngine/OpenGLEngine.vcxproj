@@ -133,7 +133,6 @@
     <ClCompile Include="..\3rdPart\glad\src\glad.c" />
     <ClCompile Include="control\camera.cpp" />
     <ClCompile Include="lights\lights.cpp" />
-    <ClCompile Include="lights\material.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshes\factory.cpp" />
     <ClCompile Include="meshes\object.cpp" />
@@ -148,7 +147,6 @@
     <ClInclude Include="common\defines.h" />
     <ClInclude Include="control\camera.h" />
     <ClInclude Include="lights\lights.h" />
-    <ClInclude Include="lights\material.h" />
     <ClInclude Include="meshes\factory.h" />
     <ClInclude Include="meshes\object.h" />
     <ClInclude Include="meshes\shader.h" />

@@ -17,7 +17,7 @@
 float last_time = 0.0f;
 float delta_time = 0.0f;
 CGLCamera camera(WINDOW_WIDTH, WINDOW_HEIGHT);
-CGLLights lights(glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+CGLLight light;
 
 
 // Window size changed callback
@@ -88,6 +88,12 @@ int main()
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	/////////////////////////////////////////////////////
+	// Light
+	light.set_position(glm::vec3(1.0f, 0.0f, 1.0f));
+	light.set_ambient(glm::vec3(0.2f, 0.2f, 0.2f));
+	light.set_diffuse(glm::vec3(0.5f, 0.5f, 0.5f));
+	light.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
+
 	CGLFactory factory;
 	// Shader
 	CGLShader *raw_shader_ptr = factory.create_shader("raw");
@@ -107,6 +113,11 @@ int main()
 	lights_shader_ptr->init("./resources/lights.vs", "./resources/lights.fs", true);
 	lights_shader_ptr->use();
 	lights_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
+	// Shader(texture, normal, coords, lights, material)
+	CGLShader *material_shader_ptr = factory.create_shader("material");
+	material_shader_ptr->init("./resources/material.vs", "./resources/material.fs", true);
+	material_shader_ptr->use();
+	material_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
 
 	// Texture(face.png)
 	CGLTexture *face_texture_ptr = factory.create_texture("face");
@@ -132,6 +143,10 @@ int main()
 	cube1.set_model(model1);
 	CGLCube cube;
 	cube.init();
+	cube.set_ambient(glm::vec3(1.0f, 1.0f, 1.0f));
+	cube.set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
+	cube.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
+	cube.set_shininess(32);
 	/////////////////////////////////////////////////////
 
 	// Main loop
@@ -168,13 +183,30 @@ int main()
 		//world_shader_ptr->set_mat4("model", cube1.get_model());
 		//cube1.draw();
 		//
-		lights_shader_ptr->use();
-		lights_shader_ptr->set_mat4("model", cube.get_model());
-		lights_shader_ptr->set_mat4("view", camera.get_view());
-		lights_shader_ptr->set_mat4("projection", camera.get_perspective());
-		lights_shader_ptr->set_vec3f("light_pos", lights.get_light_position());
-		lights_shader_ptr->set_vec3f("light_color", lights.get_light_color());
-		lights_shader_ptr->set_vec3f("camera_pos", camera.get_position());
+		//lights_shader_ptr->use();
+		//lights_shader_ptr->set_mat4("model", cube.get_model());
+		//lights_shader_ptr->set_mat4("view", camera.get_view());
+		//lights_shader_ptr->set_mat4("projection", camera.get_perspective());
+		//lights_shader_ptr->set_vec3f("light_pos", lights.get_light_position());
+		//lights_shader_ptr->set_vec3f("light_color", lights.get_light_color());
+		//lights_shader_ptr->set_vec3f("camera_pos", camera.get_position());
+		//glActiveTexture(GL_TEXTURE0);
+		//container_texture_ptr->use();
+		//cube.draw();
+		//
+		material_shader_ptr->use();
+		material_shader_ptr->set_mat4("model", cube.get_model());
+		material_shader_ptr->set_mat4("view", camera.get_view());
+		material_shader_ptr->set_mat4("projection", camera.get_perspective());
+		material_shader_ptr->set_vec3f("camera_pos", camera.get_position());
+		material_shader_ptr->set_vec3f("lamp.position", light.get_position());
+		material_shader_ptr->set_vec3f("lamp.ambient", light.get_ambient());
+		material_shader_ptr->set_vec3f("lamp.diffuse", light.get_diffuse());
+		material_shader_ptr->set_vec3f("lamp.specular", light.get_specular());
+		material_shader_ptr->set_vec3f("obj.ambient", cube.get_ambient());
+		material_shader_ptr->set_vec3f("obj.diffuse", cube.get_diffuse());
+		material_shader_ptr->set_vec3f("obj.specular", cube.get_specular());
+		material_shader_ptr->set_float("obj.shininess", cube.get_shininess());
 		glActiveTexture(GL_TEXTURE0);
 		container_texture_ptr->use();
 		cube.draw();
@@ -193,6 +225,8 @@ int main()
 	factory.destroy_shader(world_shader_ptr->get_name());
 	lights_shader_ptr->uninit();
 	factory.destroy_shader(lights_shader_ptr->get_name());
+	material_shader_ptr->uninit();
+	factory.destroy_shader(material_shader_ptr->get_name());
 
 	// Textures
 	face_texture_ptr->uninit();
