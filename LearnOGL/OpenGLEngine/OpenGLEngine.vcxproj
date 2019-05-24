@@ -146,6 +146,7 @@
     <ClCompile Include="meshes\sprite_cube.cpp" />
     <ClCompile Include="meshes\sprite_cylinder.cpp" />
     <ClCompile Include="meshes\sprite_line.cpp" />
+    <ClCompile Include="meshes\sprite_plane.cpp" />
     <ClCompile Include="meshes\sprite_rect.cpp" />
     <ClCompile Include="meshes\sprite_triangle.cpp" />
     <ClCompile Include="meshes\texture.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="meshes\sprite_cube.h" />
     <ClInclude Include="meshes\sprite_cylinder.h" />
     <ClInclude Include="meshes\sprite_line.h" />
+    <ClInclude Include="meshes\sprite_plane.h" />
     <ClInclude Include="meshes\sprite_rect.h" />
     <ClInclude Include="meshes\sprite_triangle.h" />
     <ClInclude Include="meshes\texture.h" />

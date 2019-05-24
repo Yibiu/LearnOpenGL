@@ -12,6 +12,7 @@
 #include "meshes/sprite_line.h"
 #include "meshes/sprite_circle.h"
 #include "meshes/sprite_cylinder.h"
+#include "meshes/sprite_plane.h"
 
 
 #define WINDOW_WIDTH		800
@@ -130,8 +131,8 @@ int main()
 	object.set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_shininess(32.0f);
-	CGLCylinder cylinder;
-	cylinder.init();
+	CGLPlane plane;
+	plane.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
@@ -179,10 +180,10 @@ int main()
 		object.draw();
 		*/
 		conus_shader_ptr->use();
-		conus_shader_ptr->set_mat4("model", cylinder.get_model());
+		conus_shader_ptr->set_mat4("model", plane.get_model());
 		conus_shader_ptr->set_mat4("view", camera.get_view());
 		conus_shader_ptr->set_mat4("projection", camera.get_perspective());
-		cylinder.draw();
+		plane.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
@@ -202,7 +203,7 @@ int main()
 	// Objects
 	lamp.uninit();
 	object.uninit();
-	cylinder.uninit();
+	plane.uninit();
 	/////////////////////////////////////////////////////
 
 	// Terminate
