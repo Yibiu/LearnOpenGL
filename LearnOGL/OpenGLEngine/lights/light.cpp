@@ -1,23 +1,12 @@
-#include "lights.h"
+#include "light.h"
 
 
-CGLLight::CGLLight(glm::vec3 light_pos)
+CGLLight::CGLLight()
 {
-	_data.position = light_pos;
 }
 
 CGLLight::~CGLLight()
 {
-}
-
-void CGLLight::set_position(const glm::vec3 &pos)
-{
-	_data.position = pos;
-}
-
-glm::vec3 CGLLight::get_position()
-{
-	return _data.position;
 }
 
 void CGLLight::set_ambient(const glm::vec3 &ambient)

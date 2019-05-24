@@ -48,7 +48,16 @@
     <ClCompile Include="meshes\sprite.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="lights\lights.cpp">
+    <ClCompile Include="lights\light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lights\light_parallel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lights\light_dot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lights\light_spot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,7 +92,16 @@
     <ClInclude Include="control\camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="lights\lights.h">
+    <ClInclude Include="lights\light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lights\light_parallel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lights\light_dot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lights\light_spot.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

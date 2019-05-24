@@ -3,26 +3,30 @@
 
 
 /**
-* Light effect for OpenGL
+* @brief:
+* Basic light for OpenGL
+*
+*                Light
+*      |           |         |
+*   Parallel      Point      Spot 
+*                
 */
 class CGLLight
 {
 public:
 	typedef struct _light_data
 	{
-		glm::vec3 position;
-
 		glm::vec3 ambient;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	} light_data_t;
 
 public:
-	CGLLight(glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 0.0f));
+	CGLLight();
 	virtual ~CGLLight();
 
-	void set_position(const glm::vec3 &pos);
-	glm::vec3 get_position();
+	//void set_position(const glm::vec3 &pos);
+	//glm::vec3 get_position();
 
 	void set_ambient(const glm::vec3 &ambient);
 	void set_diffuse(const glm::vec3 &diffuse);
@@ -34,5 +38,8 @@ public:
 protected:
 	light_data_t _data;
 };
+
+
+
 
 

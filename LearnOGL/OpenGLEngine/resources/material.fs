@@ -19,6 +19,10 @@ struct light {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+	
+	float constant;
+    float linear;
+    float quadratic;
 };
 
 uniform sampler2D texture0;
@@ -43,6 +47,10 @@ void main()
 	float spec = pow(max(dot(camera_dir, reflect_dir), 0.0), obj.shininess);
 	vec3 specular = lamp.specular * (spec * obj.specular);
 	
-	vec3 combination = (ambient + diffuse + specular) * texture(texture0, TexCoord).rgb;
+	// Attenuation
+	float distance = length(lamp.position - FragPos);
+	float attenuation = 1.0 / (lamp.constant + lamp.linear * distance + lamp.quadratic * (distance * distance));
+	
+	vec3 combination = attenuation * (ambient + diffuse + specular) * texture(texture0, TexCoord).rgb;
     FragColor = vec4(combination, 1.0);
 }

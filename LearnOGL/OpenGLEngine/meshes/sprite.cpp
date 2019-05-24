@@ -3,6 +3,9 @@
 
 CGLSprite::CGLSprite()
 {
+	_type = CGLObject::OBJ_MESH;
+	_name = "";
+
 	_data.model = glm::mat4(1.0f);
 }
 
