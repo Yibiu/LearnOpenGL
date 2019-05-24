@@ -27,3 +27,45 @@ typedef struct _rect
 	int height;
 } rect_t;
 
+typedef struct _coord_2di
+{
+	int x;
+	int y;
+} coord_2di_t;
+
+typedef struct _coord_3di
+{
+	int x;
+	int y;
+	int z;
+} coord_3di_t;
+
+typedef struct _coord_4di
+{
+	int x;
+	int y;
+	int z;
+	int w;
+} coord_4di_t;
+
+typedef struct _coord_2df
+{
+	float x;
+	float y;
+} coord_2df_t;
+
+typedef struct _coord_3df
+{
+	float x;
+	float y;
+	float z;
+} coord_3df_t;
+
+typedef struct _coord_4df
+{
+	float x;
+	float y;
+	float z;
+	float w;
+} coord_4df_t;
+

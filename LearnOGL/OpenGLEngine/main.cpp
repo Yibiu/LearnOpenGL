@@ -8,6 +8,7 @@
 #include "meshes/sprite_triangle.h"
 #include "meshes/sprite_rect.h"
 #include "meshes/sprite_cube.h"
+#include "meshes/sprite_conus.h"
 
 
 #define WINDOW_WIDTH		800
@@ -99,6 +100,9 @@ int main()
 
 	CGLFactory factory;
 	// Shader
+	CGLShader *conus_shader_ptr = factory.create_shader("conus");
+	conus_shader_ptr->init("./resources/conus.vs", "./resources/conus.fs", true);
+	// Shader
 	CGLShader *lamp_shader_ptr = factory.create_shader("lamp");
 	lamp_shader_ptr->init("./resources/lamp.vs", "./resources/lamp.fs", true);
 	CGLShader *obj_shader_ptr = factory.create_shader("object");
@@ -123,10 +127,13 @@ int main()
 	object.set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_shininess(32.0f);
+	CGLConus conus;
+	conus.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
 	glEnable(GL_DEPTH_TEST);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	float current_time = glfwGetTime();
 	while (!glfwWindowShouldClose(window_ptr))
 	{
@@ -140,6 +147,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw...
+		/*
 		// Lamp
 		lamp_shader_ptr->use();
 		lamp_shader_ptr->set_mat4("model", lamp.get_model());
@@ -166,6 +174,12 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		container_texture_ptr->use();
 		object.draw();
+		*/
+		conus_shader_ptr->use();
+		conus_shader_ptr->set_mat4("model", conus.get_model());
+		conus_shader_ptr->set_mat4("view", camera.get_view());
+		conus_shader_ptr->set_mat4("projection", camera.get_perspective());
+		conus.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
@@ -185,6 +199,7 @@ int main()
 	// Objects
 	lamp.uninit();
 	object.uninit();
+	conus.uninit();
 	/////////////////////////////////////////////////////
 
 	// Terminate

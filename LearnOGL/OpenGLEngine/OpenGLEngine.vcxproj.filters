@@ -60,6 +60,9 @@
     <ClCompile Include="lights\light_spot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="meshes\sprite_conus.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\defines.h">
@@ -102,6 +105,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="lights\light_spot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes\sprite_conus.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
