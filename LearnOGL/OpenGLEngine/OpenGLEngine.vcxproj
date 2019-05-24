@@ -144,6 +144,7 @@
     <ClCompile Include="meshes\sprite_circle.cpp" />
     <ClCompile Include="meshes\sprite_conus.cpp" />
     <ClCompile Include="meshes\sprite_cube.cpp" />
+    <ClCompile Include="meshes\sprite_cylinder.cpp" />
     <ClCompile Include="meshes\sprite_line.cpp" />
     <ClCompile Include="meshes\sprite_rect.cpp" />
     <ClCompile Include="meshes\sprite_triangle.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="meshes\sprite_circle.h" />
     <ClInclude Include="meshes\sprite_conus.h" />
     <ClInclude Include="meshes\sprite_cube.h" />
+    <ClInclude Include="meshes\sprite_cylinder.h" />
     <ClInclude Include="meshes\sprite_line.h" />
     <ClInclude Include="meshes\sprite_rect.h" />
     <ClInclude Include="meshes\sprite_triangle.h" />
