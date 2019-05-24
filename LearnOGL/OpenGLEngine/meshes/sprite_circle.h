@@ -1,16 +1,17 @@
 #pragma once
+#include <vector>
 #include "sprite.h"
 
 
 /**
 * @brief:
-* Sprite - Cube
+*
 */
-class CGLCube : public CGLSprite
+class CGLCircle : public CGLSprite
 {
 public:
-	CGLCube();
-	virtual ~CGLCube();
+	CGLCircle();
+	virtual ~CGLCircle();
 
 	// CGLSprite
 	virtual bool init();
@@ -20,4 +21,7 @@ public:
 protected:
 	GLuint _VAO;
 	GLuint _VBO;
+
+	std::vector<GLfloat> _vertices;
 };
+

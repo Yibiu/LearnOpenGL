@@ -4,13 +4,13 @@
 
 /**
 * @brief:
-* Sprite - Cube
+* Sprite - Line
 */
-class CGLCube : public CGLSprite
+class CGLLine : public CGLSprite
 {
 public:
-	CGLCube();
-	virtual ~CGLCube();
+	CGLLine();
+	virtual ~CGLLine();
 
 	// CGLSprite
 	virtual bool init();
@@ -21,3 +21,4 @@ protected:
 	GLuint _VAO;
 	GLuint _VBO;
 };
+

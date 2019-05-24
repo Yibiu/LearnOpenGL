@@ -63,6 +63,12 @@
     <ClCompile Include="meshes\sprite_conus.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="meshes\sprite_line.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="meshes\sprite_circle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\defines.h">
@@ -108,6 +114,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="meshes\sprite_conus.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes\sprite_line.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes\sprite_circle.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

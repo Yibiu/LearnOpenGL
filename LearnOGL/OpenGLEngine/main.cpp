@@ -9,6 +9,8 @@
 #include "meshes/sprite_rect.h"
 #include "meshes/sprite_cube.h"
 #include "meshes/sprite_conus.h"
+#include "meshes/sprite_line.h"
+#include "meshes/sprite_circle.h"
 
 
 #define WINDOW_WIDTH		800
@@ -127,8 +129,8 @@ int main()
 	object.set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
 	object.set_shininess(32.0f);
-	CGLConus conus;
-	conus.init();
+	CGLCircle circle;
+	circle.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
@@ -176,10 +178,10 @@ int main()
 		object.draw();
 		*/
 		conus_shader_ptr->use();
-		conus_shader_ptr->set_mat4("model", conus.get_model());
+		conus_shader_ptr->set_mat4("model", circle.get_model());
 		conus_shader_ptr->set_mat4("view", camera.get_view());
 		conus_shader_ptr->set_mat4("projection", camera.get_perspective());
-		conus.draw();
+		circle.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
@@ -199,7 +201,7 @@ int main()
 	// Objects
 	lamp.uninit();
 	object.uninit();
-	conus.uninit();
+	circle.uninit();
 	/////////////////////////////////////////////////////
 
 	// Terminate

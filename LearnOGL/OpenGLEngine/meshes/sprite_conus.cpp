@@ -75,6 +75,7 @@ void CGLConus::uninit()
 		glDeleteVertexArrays(1, &_VAO_side);
 		_VAO_side = 0;
 	}
+	_vertices_side.clear();
 
 	if (_VBO_bottom > 0) {
 		glDeleteBuffers(1, &_VBO_bottom);
@@ -84,6 +85,7 @@ void CGLConus::uninit()
 		glDeleteVertexArrays(1, &_VAO_bottom);
 		_VAO_bottom = 0;
 	}
+	_vertices_bottom.clear();
 }
 
 bool CGLConus::draw()

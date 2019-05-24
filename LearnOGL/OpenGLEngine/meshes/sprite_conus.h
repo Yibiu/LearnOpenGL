@@ -13,6 +13,7 @@ public:
 	CGLConus();
 	virtual ~CGLConus();
 
+	// CGLSprite
 	virtual bool init();
 	virtual void uninit();
 	virtual bool draw();
