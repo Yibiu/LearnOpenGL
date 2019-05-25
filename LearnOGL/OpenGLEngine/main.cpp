@@ -13,6 +13,7 @@
 #include "meshes/sprite_circle.h"
 #include "meshes/sprite_cylinder.h"
 #include "meshes/sprite_plane.h"
+#include "meshes/sprite_ball.h"
 
 
 #define WINDOW_WIDTH		800
@@ -133,11 +134,13 @@ int main()
 	object.set_shininess(32.0f);
 	CGLPlane plane;
 	plane.init();
+	CGLBall ball;
+	ball.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
 	glEnable(GL_DEPTH_TEST);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	float current_time = glfwGetTime();
 	while (!glfwWindowShouldClose(window_ptr))
 	{
@@ -183,7 +186,8 @@ int main()
 		conus_shader_ptr->set_mat4("model", plane.get_model());
 		conus_shader_ptr->set_mat4("view", camera.get_view());
 		conus_shader_ptr->set_mat4("projection", camera.get_perspective());
-		plane.draw();
+		//plane.draw();
+		ball.draw();
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
