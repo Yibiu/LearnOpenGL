@@ -3,9 +3,11 @@
 
 CGLBall::CGLBall()
 {
-	_VAOs.clear();
-	_VBOs.clear();
+	_VAO = 0;
+	_VBO = 0;
+	_IBO = 0;
 	_vertices.clear();
+	_indexes.clear();
 }
 
 CGLBall::~CGLBall()
@@ -20,77 +22,69 @@ bool CGLBall::init()
 	float row_angle = 180 / (row - 1);
 	float col_angle = 360 / col;
 
-	std::vector<std::vector<coord_3df_t>> vertices;
-	for (uint32_t i = 0; i < row; i++) {
-		std::vector<coord_3df_t> row_vertices;
-		for (uint32_t j = 0; j <= col; j++) {
-			coord_3df_t coord;
-			coord.x = r * sin(glm::radians(i * row_angle)) * cos(glm::radians(j * col_angle));
-			coord.y = r * cos(glm::radians(i * row_angle));
-			coord.z = -r * sin(glm::radians(i * row_angle)) * sin(glm::radians(j * col_angle));
-
-			row_vertices.push_back(coord);
-		}
-		vertices.push_back(row_vertices);
-	}
-
-	_VAOs.clear();
-	_VBOs.clear();
 	_vertices.clear();
-	for (uint32_t i = 0; i < row - 1; i++) {
-		GLuint VAO;
-		GLuint VBO;
-		std::vector<GLfloat> row_vertices;
-		for (uint32_t j = 0; j <= col; j++) {
-			row_vertices.push_back(vertices[i][j].x);
-			row_vertices.push_back(vertices[i][j].y);
-			row_vertices.push_back(vertices[i][j].z);
-
-			row_vertices.push_back(vertices[i + 1][j].x);
-			row_vertices.push_back(vertices[i + 1][j].y);
-			row_vertices.push_back(vertices[i + 1][j].z);
+	for (uint32_t i = 0; i < row; i++) {
+		for (uint32_t j = 0; j < col; j++) {
+			_vertices.push_back(r * sin(glm::radians(i * row_angle)) * cos(glm::radians(j * col_angle)));
+			_vertices.push_back(r * cos(glm::radians(i * row_angle)));
+			_vertices.push_back(-r * sin(glm::radians(i * row_angle)) * sin(glm::radians(j * col_angle)));
 		}
-
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, row_vertices.size() * sizeof(float), &row_vertices[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-		_VAOs.push_back(VAO);
-		_VBOs.push_back(VBO);
-		_vertices.push_back(row_vertices);
 	}
+
+	_indexes.clear();
+	for (uint32_t i = 0; i < row - 1; i++) {
+		for (uint32_t j = 0; j < col; j++) {
+			// Triangle0
+			_indexes.push_back(i * col + j);
+			_indexes.push_back((i + 1) * col + j);
+			_indexes.push_back(i * col + (j + 1) % col);
+			// Triagnle1
+			_indexes.push_back((i + 1) * col + j);
+			_indexes.push_back((i + 1) * col + (j + 1) % col);
+			_indexes.push_back(i * col + (j + 1) % col);
+		}
+	}
+
+	glGenVertexArrays(1, &_VAO);
+	glBindVertexArray(_VAO);
+	glGenBuffers(1, &_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(GLfloat), &_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glGenBuffers(1, &_IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indexes.size() * sizeof(GLuint), &_indexes[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	return true;
 }
 
 void CGLBall::uninit()
 {
-	for (int i = 0; i < _VBOs.size(); i++) {
-		glDeleteBuffers(1, &_VBOs[i]);
+	if (_IBO > 0) {
+		glDeleteBuffers(1, &_IBO);
+		_IBO = 0;
 	}
-	_VBOs.clear();
-
-	for (int i = 0; i < _VAOs.size(); i++) {
-		glDeleteVertexArrays(1, &_VAOs[i]);
+	if (_VBO > 0) {
+		glDeleteBuffers(1, &_VBO);
+		_VBO = 0;
 	}
-	_VAOs.clear();
+	if (_VAO > 0) {
+		glDeleteVertexArrays(1, &_VAO);
+		_VAO = 0;
+	}
 
 	_vertices.clear();
+	_indexes.clear();
 }
 
 bool CGLBall::draw()
 {
-	if (_vertices.size() > 0 && _vertices.size() == _VAOs.size()) {
-		for (int i = 0; i < _vertices.size(); i++) {
-			glBindVertexArray(_VAOs[i]);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, _vertices[i].size() / 3);
-		}
+	if (_VAO > 0) {
+		glBindVertexArray(_VAO);
+		glDrawElements(GL_TRIANGLES, _indexes.size(), GL_UNSIGNED_INT, 0);
 		return true;
 	}
 

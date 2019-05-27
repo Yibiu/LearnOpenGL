@@ -19,8 +19,10 @@ public:
 	bool draw();
 
 protected:
-	std::vector<GLuint> _VAOs;
-	std::vector<GLuint> _VBOs;
-	std::vector<std::vector<GLfloat>> _vertices;
+	GLuint _VAO;
+	GLuint _VBO;
+	GLuint _IBO;
+	std::vector<GLfloat> _vertices;
+	std::vector<GLuint> _indexes;
 };
 
