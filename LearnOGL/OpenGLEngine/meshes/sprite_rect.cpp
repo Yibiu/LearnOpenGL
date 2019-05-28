@@ -14,6 +14,7 @@ CGLRectangle::~CGLRectangle()
 
 bool CGLRectangle::init()
 {
+	/*
 	GLfloat vertices[] = {
 		// positions       // texture coords
 		0.5f,  0.5f, 0.0f, 1.0f, 1.0f,	// Top-right
@@ -21,10 +22,21 @@ bool CGLRectangle::init()
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,	// Bottom-left
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f	// Top-left
 	};
-	GLuint indices[] = {
-		0, 1, 3,	// Triangle 1
-		1, 2, 3		// Triangle 2
+	*/
+	float vertices[] = {
+		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
+	//GLuint indices[] = {
+	//	0, 1, 3,	// Triangle 1
+	//	1, 2, 3		// Triangle 2
+	//};
 	glGenVertexArrays(1, &_VAO);
 	glBindVertexArray(_VAO);
 	glGenBuffers(1, &_VBO);
@@ -34,9 +46,10 @@ bool CGLRectangle::init()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glGenBuffers(1, &_IBO);
+	/*glGenBuffers(1, &_IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	*/
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -63,7 +76,8 @@ bool CGLRectangle::draw()
 {
 	if (_VAO > 0) {
 		glBindVertexArray(_VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		return true;
 	}
 

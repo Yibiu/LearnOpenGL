@@ -23,7 +23,6 @@
 float last_time = 0.0f;
 float delta_time = 0.0f;
 CGLCamera camera(WINDOW_WIDTH, WINDOW_HEIGHT);
-CGLDotLight light;
 
 
 // Window size changed callback
@@ -94,52 +93,42 @@ int main()
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	/////////////////////////////////////////////////////
-	// Light
-	light.set_position(glm::vec3(8.0f, 8.0f, 0.0f));
-	light.set_ambient(glm::vec3(0.2f, 0.2f, 0.2f));
-	light.set_diffuse(glm::vec3(0.8f, 0.8f, 0.8f));
-	light.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
-	light.set_constant(1.0f);
-	light.set_linear(0.045f);
-	light.set_quadratic(0.0075f);
-
 	CGLFactory factory;
 	// Shader
-	CGLShader *conus_shader_ptr = factory.create_shader("conus");
-	conus_shader_ptr->init("./resources/conus.vs", "./resources/conus.fs", true);
-	// Shader
-	CGLShader *lamp_shader_ptr = factory.create_shader("lamp");
-	lamp_shader_ptr->init("./resources/lamp.vs", "./resources/lamp.fs", true);
-	CGLShader *obj_shader_ptr = factory.create_shader("object");
-	obj_shader_ptr->init("./resources/material.vs", "./resources/material.fs", true);
-	obj_shader_ptr->use();
-	obj_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
+	CGLShader *depth_shader_ptr = factory.create_shader("depth");
+	depth_shader_ptr->init("./resources/depth.vs", "./resources/depth.fs", true);
+	depth_shader_ptr->use();
+	depth_shader_ptr->set_int("texture0", 0); // TEXTURE0 -> "texture0"
+	CGLShader *single_shader_ptr = factory.create_shader("single");
+	single_shader_ptr->init("./resources/depth.vs", "./resources/single.fs", true);
 
-	// Texture(container2.png)
-	CGLTexture *container_texture_ptr = factory.create_texture("container");
-	container_texture_ptr->init("./resources/container2.png", false, true);
+	// Texture
+	CGLTexture *marble_texture_ptr = factory.create_texture("marble");
+	marble_texture_ptr->init("./resources/container.jpg", false, true);
+	CGLTexture *metal_texture_ptr = factory.create_texture("metal");
+	metal_texture_ptr->init("./resources/container2.png", false, true);
 
 	// Objects
-	CGLCube lamp;
-	lamp.init();
-	glm::mat4 model(1.0f);
-	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-	model = glm::translate(model, light.get_position());
-	lamp.set_model(model);
-	CGLCube object;
-	object.init();
-	object.set_ambient(glm::vec3(1.0f, 1.0f, 1.0f));
-	object.set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
-	object.set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
-	object.set_shininess(32.0f);
-	CGLPlane plane;
+	CGLCube cube;
+	cube.init();
+	CGLRectangle plane;
 	plane.init();
-	CGLBall ball;
-	ball.init();
 	/////////////////////////////////////////////////////
 
 	// Main loop
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	float current_time = glfwGetTime();
 	while (!glfwWindowShouldClose(window_ptr))
@@ -151,7 +140,7 @@ int main()
 
 		// Draw renderer... 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		// Draw...
 		/*
@@ -182,12 +171,47 @@ int main()
 		container_texture_ptr->use();
 		object.draw();
 		*/
-		conus_shader_ptr->use();
-		conus_shader_ptr->set_mat4("model", plane.get_model());
-		conus_shader_ptr->set_mat4("view", camera.get_view());
-		conus_shader_ptr->set_mat4("projection", camera.get_perspective());
-		//plane.draw();
-		ball.draw();
+		depth_shader_ptr->use();
+		depth_shader_ptr->set_mat4("view", camera.get_view());
+		depth_shader_ptr->set_mat4("projection", camera.get_perspective());
+		// Floor
+		glStencilMask(0x00);
+		glActiveTexture(GL_TEXTURE0);
+		metal_texture_ptr->use();
+		depth_shader_ptr->set_mat4("model", glm::mat4(1.0f));
+		plane.draw();
+		// Cube
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		marble_texture_ptr->use();
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		depth_shader_ptr->set_mat4("model", model);
+		cube.draw();
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		depth_shader_ptr->set_mat4("model", model);
+		cube.draw();
+		// Cube Borders
+		glStencilMask(0x00);
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glDisable(GL_DEPTH_TEST);
+		single_shader_ptr->use();
+		single_shader_ptr->set_mat4("view", camera.get_view());
+		single_shader_ptr->set_mat4("projection", camera.get_perspective());
+		float scale = 1.1f;
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		single_shader_ptr->set_mat4("model", model);
+		cube.draw();
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		single_shader_ptr->set_mat4("model", model);
+		cube.draw();
+		glStencilMask(0xFF);
+		glEnable(GL_DEPTH_TEST);
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
@@ -195,18 +219,17 @@ int main()
 
 	/////////////////////////////////////////////////////
 	// Shaders
-	lamp_shader_ptr->uninit();
-	factory.destroy_shader(lamp_shader_ptr->get_name());
-	obj_shader_ptr->uninit();
-	factory.destroy_shader(obj_shader_ptr->get_name());
+	depth_shader_ptr->uninit();
+	factory.destroy_shader(depth_shader_ptr->get_name());
 
 	// Textures
-	container_texture_ptr->uninit();
-	factory.destroy_texture(container_texture_ptr->get_name());
+	marble_texture_ptr->uninit();
+	factory.destroy_texture(marble_texture_ptr->get_name());
+	metal_texture_ptr->uninit();
+	factory.destroy_texture(metal_texture_ptr->get_name());
 
 	// Objects
-	lamp.uninit();
-	object.uninit();
+	cube.uninit();
 	plane.uninit();
 	/////////////////////////////////////////////////////
 
