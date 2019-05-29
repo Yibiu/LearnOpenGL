@@ -71,6 +71,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	GLFWwindow *window_ptr = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGLEngine", NULL, NULL);
 	if (nullptr == window_ptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -91,6 +92,7 @@ int main()
 
 	// Init OpenGL view port
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glEnable(GL_MULTISAMPLE);
 
 	/////////////////////////////////////////////////////
 	CGLFactory factory;
