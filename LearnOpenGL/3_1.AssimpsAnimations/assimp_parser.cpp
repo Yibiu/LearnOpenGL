@@ -107,7 +107,7 @@ bool CAssimpParser::_parse_scene(const aiScene *scene_ptr)
 	}
 
 	// Parse all nodes
-
+	_parse_node(_ai_scene->mRootNode);
 
 	return true;
 }
@@ -241,38 +241,38 @@ void CAssimpParser::_read_node_heirarchy(float time, const aiNode *node, const g
 	const aiNodeAnim* node_anim = _find_node_in_animation(node_name, anim);
 	if (node_anim) {
 		// Interpolate scaling and generate scaling transformation matrix
-		aiVector3D Scaling;
-		CalcInterpolatedScaling(Scaling, time, node_anim);
-		glm::mat4 ScalingM(1.f);
-		ScalingM = glm::scale(ScalingM, glm::vec3(Scaling.x, Scaling.y, Scaling.z));
+		aiVector3D scaling;
+		_calc_interpolated_scaling(scaling, time, node_anim);
+		glm::mat4 scaling_m(1.f);
+		scaling_m = glm::scale(scaling_m, glm::vec3(scaling.x, scaling.y, scaling.z));
 
 		// Interpolate rotation and generate rotation transformation matrix
-		aiQuaternion RotationQ;
-		CalcInterpolatedRotation(RotationQ, time, node_anim);
-		glm::mat4 RotationM(1.f);
-		RotationM = convert_mat(RotationQ.GetMatrix());
+		aiQuaternion rotation;
+		_calc_interpolated_rotation(rotation, time, node_anim);
+		glm::mat4 rotation_m(1.f);
+		rotation_m = convert_mat(rotation.GetMatrix());
 
 		// Interpolate translation and generate translation transformation matrix
-		aiVector3D Translation;
-		CalcInterpolatedPosition(Translation, time, node_anim);
-		glm::mat4 TranslationM(1.f);
-		TranslationM = glm::translate(TranslationM, glm::vec3(Translation.x, Translation.y, Translation.z));
+		aiVector3D translation;
+		_calc_interpolated_position(translation, time, node_anim);
+		glm::mat4 translation_m(1.f);
+		translation_m = glm::translate(translation_m, glm::vec3(translation.x, translation.y, translation.z));
 
 		// Combine the above transformations
-		node_trans = TranslationM * RotationM * ScalingM;
+		node_trans = translation_m * rotation_m * scaling_m;
 	}
 
-	glm::mat4 GlobalTransformation = parent_trans * node_trans;
+	glm::mat4 global_transformation = parent_trans * node_trans;
 
 	// This node is bone, need to calc transform
 	if (_scene.bones_map.find(node_name) != _scene.bones_map.end()) {
 		uint32_t idx = _scene.bones_map[node_name];
-		_scene.bones[idx].final_transform = _scene.transform * GlobalTransformation * _scene.bones[idx].offset_matrix;
+		_scene.bones[idx].final_transform = _scene.transform * global_transformation * _scene.bones[idx].offset_matrix;
 	}
 
 	// The children nodes
 	for (uint32_t i = 0; i < node->mNumChildren; i++) {
-		_read_node_heirarchy(time, node->mChildren[i], GlobalTransformation);
+		_read_node_heirarchy(time, node->mChildren[i], global_transformation);
 	}
 }
 
@@ -289,70 +289,75 @@ const aiNodeAnim* CAssimpParser::_find_node_in_animation(const std::string &node
 	return NULL;
 }
 
-void CAssimpParser::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
+void CAssimpParser::_calc_interpolated_scaling(aiVector3D &out, float time, const aiNodeAnim *node_anim)
 {
-	if (pNodeAnim->mNumScalingKeys == 1) {
-		Out = pNodeAnim->mScalingKeys[0].mValue;
+	// Need at least two values to interpolate...
+	if (node_anim->mNumScalingKeys == 1) {
+		out = node_anim->mScalingKeys[0].mValue;
 		return;
 	}
 
-	uint32_t ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
-	uint32_t NextScalingIndex = (ScalingIndex + 1);
-	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
-	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
-	float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
-	assert(Factor >= 0.0f && Factor <= 1.0f);
-	const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
-	const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
-	aiVector3D Delta = End - Start;
-	Out = Start + Factor * Delta;
+	// FIXME: What if the index is the max index?
+	uint32_t scaling_index = _find_scaling(time, node_anim);
+	uint32_t next_scaling_index = (scaling_index + 1);
+	assert(next_scaling_index < node_anim->mNumScalingKeys);
+	float delta_time = (float)(node_anim->mScalingKeys[next_scaling_index].mTime - node_anim->mScalingKeys[scaling_index].mTime);
+	float factor = (time - (float)node_anim->mScalingKeys[scaling_index].mTime) / delta_time;
+	assert(factor >= 0.0f && factor <= 1.0f);
+	const aiVector3D &start = node_anim->mScalingKeys[scaling_index].mValue;
+	const aiVector3D &end = node_anim->mScalingKeys[next_scaling_index].mValue;
+	aiVector3D delta = end - start;
+	out = start + factor * delta;
 }
 
-void CAssimpParser::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
+void CAssimpParser::_calc_interpolated_rotation(aiQuaternion &out, float time, const aiNodeAnim *node_anim)
 {
-	// we need at least two values to interpolate...
-	if (pNodeAnim->mNumRotationKeys == 1) {
-		Out = pNodeAnim->mRotationKeys[0].mValue;
+	// Need at least two values to interpolate...
+	if (node_anim->mNumRotationKeys == 1) {
+		out = node_anim->mRotationKeys[0].mValue;
 		return;
 	}
 
-	uint32_t RotationIndex = FindRotation(AnimationTime, pNodeAnim);
-	uint32_t NextRotationIndex = (RotationIndex + 1);
-	assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
-	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
-	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-	assert(Factor >= 0.0f && Factor <= 1.0f);
-	const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
-	const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
-	aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
-	Out = Out.Normalize();
+	// FIXME: What if the index is the max index?
+	uint32_t rotation_index = _find_rotation(time, node_anim);
+	uint32_t next_rotation_index = (rotation_index + 1);
+	assert(next_rotation_index < node_anim->mNumRotationKeys);
+	float delta_time = (float)(node_anim->mRotationKeys[next_rotation_index].mTime - node_anim->mRotationKeys[rotation_index].mTime);
+	float factor = (time - (float)node_anim->mRotationKeys[rotation_index].mTime) / delta_time;
+	assert(factor >= 0.0f && factor <= 1.0f);
+	const aiQuaternion &start_rotationQ = node_anim->mRotationKeys[rotation_index].mValue;
+	const aiQuaternion &end_rotationQ = node_anim->mRotationKeys[next_rotation_index].mValue;
+	aiQuaternion::Interpolate(out, start_rotationQ, end_rotationQ, factor);
+	out = out.Normalize();
 }
 
-void CAssimpParser::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
+void CAssimpParser::_calc_interpolated_position(aiVector3D &out, float time, const aiNodeAnim *node_anim)
 {
-	if (pNodeAnim->mNumPositionKeys == 1) {
-		Out = pNodeAnim->mPositionKeys[0].mValue;
+	// Need at least two values to interpolate...
+	if (node_anim->mNumPositionKeys == 1) {
+		out = node_anim->mPositionKeys[0].mValue;
 		return;
 	}
 
-	uint32_t PositionIndex = FindPosition(AnimationTime, pNodeAnim);
-	uint32_t NextPositionIndex = (PositionIndex + 1);
-	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
-	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
-	float Factor = (AnimationTime - (float)pNodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
-	assert(Factor >= 0.0f && Factor <= 1.0f);
-	const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
-	const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
-	aiVector3D Delta = End - Start;
-	Out = Start + Factor * Delta;
+	// FIXME: What if the index is the max index?
+	uint32_t position_index = _find_position(time, node_anim);
+	uint32_t next_position_index = (position_index + 1);
+	assert(next_position_index < node_anim->mNumPositionKeys);
+	float delta_time = (float)(node_anim->mPositionKeys[next_position_index].mTime - node_anim->mPositionKeys[position_index].mTime);
+	float factor = (time - (float)node_anim->mPositionKeys[position_index].mTime) / delta_time;
+	assert(factor >= 0.0f && factor <= 1.0f);
+	const aiVector3D &start = node_anim->mPositionKeys[position_index].mValue;
+	const aiVector3D &end = node_anim->mPositionKeys[next_position_index].mValue;
+	aiVector3D delta = end - start;
+	out = start + factor * delta;
 }
 
-uint32_t CAssimpParser::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint32_t CAssimpParser::_find_scaling(float time, const aiNodeAnim *node_anim)
 {
-	assert(pNodeAnim->mNumScalingKeys > 0);
+	assert(node_anim->mNumScalingKeys > 0);
 
-	for (uint32_t i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
-		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) {
+	for (uint32_t i = 0; i < node_anim->mNumScalingKeys - 1; i++) {
+		if (time < (float)node_anim->mScalingKeys[i + 1].mTime) {
 			return i;
 		}
 	}
@@ -362,12 +367,12 @@ uint32_t CAssimpParser::FindScaling(float AnimationTime, const aiNodeAnim* pNode
 	return 0;
 }
 
-uint32_t CAssimpParser::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint32_t CAssimpParser::_find_rotation(float time, const aiNodeAnim *node_anim)
 {
-	assert(pNodeAnim->mNumRotationKeys > 0);
+	assert(node_anim->mNumRotationKeys > 0);
 
-	for (uint32_t i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
-		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) {
+	for (uint32_t i = 0; i < node_anim->mNumRotationKeys - 1; i++) {
+		if (time < (float)node_anim->mRotationKeys[i + 1].mTime) {
 			return i;
 		}
 	}
@@ -377,10 +382,10 @@ uint32_t CAssimpParser::FindRotation(float AnimationTime, const aiNodeAnim* pNod
 	return 0;
 }
 
-uint32_t CAssimpParser::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint32_t CAssimpParser::_find_position(float time, const aiNodeAnim *node_anim)
 {
-	for (uint32_t i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
-		if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime) {
+	for (uint32_t i = 0; i < node_anim->mNumPositionKeys - 1; i++) {
+		if (time < (float)node_anim->mPositionKeys[i + 1].mTime) {
 			return i;
 		}
 	}

@@ -105,12 +105,12 @@ protected:
 
 	void _read_node_heirarchy(float time, const aiNode *node, const glm::mat4 &parent_trans);
 	const aiNodeAnim* _find_node_in_animation(const std::string &node, const aiAnimation *animation);
-	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-	void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-	void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-	uint32_t FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-	uint32_t FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-	uint32_t FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	void _calc_interpolated_scaling(aiVector3D &out, float time, const aiNodeAnim *node_anim);
+	void _calc_interpolated_rotation(aiQuaternion &out, float time, const aiNodeAnim *node_anim);
+	void _calc_interpolated_position(aiVector3D &out, float time, const aiNodeAnim *node_anim);
+	uint32_t _find_scaling(float time, const aiNodeAnim *node_anim);
+	uint32_t _find_rotation(float time, const aiNodeAnim *node_anim);
+	uint32_t _find_position(float time, const aiNodeAnim *node_anim);
 
 protected:
 	std::string _dir_path;
