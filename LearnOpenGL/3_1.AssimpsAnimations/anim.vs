@@ -18,7 +18,7 @@ uniform mat4 bones[MAX_BONES_SUPPORT];
 
 void main()
 {
-	mat4 transform = mat4(1.f);
+	mat4 transform = mat4(0);
 	for (int i = 0;i < MAX_BONES_SLOTS;i++) {
 		transform += bones[aBoneIdxes[i]] * aBoneWeights[i];
 	}
