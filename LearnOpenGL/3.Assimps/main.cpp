@@ -9,6 +9,7 @@
 #include "gtc/type_ptr.hpp"
 #include "shader.h"
 #include "model.h"
+#include "assimp_parser.h"
 using namespace std;
 /**
 * @brief:
@@ -21,6 +22,9 @@ using namespace std;
 *	https://learnopengl-cn.github.io/03%20Model%20Loading/03%20Model/
 */
 
+
+#define MAX_BONES_SLOTS		4
+#define MAX_BONES_SUPPORT	100
 
 #define WINDOW_WIDTH	800
 #define WINDOW_HEIGHT	600
@@ -51,7 +55,7 @@ void process_input(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	float speed = 2.5 * delta_time;
+	float speed = 8.f * delta_time;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera_pos += speed * camera_front;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -132,15 +136,170 @@ int main()
 	// Init OpenGL view port
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	// ReSources
+	//////////////////////////////////////////////////////
+	// Create resources
 	// Shader
-	CShader shader;
-	shader.compile("./model.vs", "./model.fs");
+	//CShader shader;
+	//shader.compile("./model.vs", "./model.fs");
 	// Model
-	CNGLModel models;
-	models.load("./nanosuit/nanosuit.obj");
+	//CNGLModel models;
+	//models.load("./nanosuit/nanosuit.obj");
+
+	CShader shader;
+	shader.compile("./anim.vs", "./anim.fs");
+	CAssimpParser parser;
+	bool ret = parser.load(
+		/*"./Content/boblampclean.md5mesh"*/
+		/*"F:/IDE/Branch/DeferredShading/Engine/Assets/Models/Miku/miku.fbx"*/
+		"C:/Users/Administrator/Desktop/Shoved Reaction With Spin.fbx"
+	);
+	if (!ret) {
+		cout << "Assimp parse failed" << endl;
+		return -1;
+	}
+	if (parser.get_scene().bones.size() > MAX_BONES_SUPPORT) {
+		cout << "Bones out of support" << endl;
+		return -1;
+	}
+
+	GLuint VAO;
+	GLuint VBOs[5];
+	enum VB_TYPES
+	{
+		VB_POS,
+		VB_NORMAL,
+		VB_TEXCOORD,
+		VB_BONE,
+		VB_INDEX
+	};
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glGenBuffers(5, VBOs);
+
+	// Position - atrribute 0
+	std::vector<glm::vec3> positions;
+	for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+		parser.get_scene().meshes[i].base_vertices = positions.size();
+		for (uint32_t j = 0; j < parser.get_scene().meshes[i].vertices.size(); j++) {
+			positions.push_back(parser.get_scene().meshes[i].vertices[j].position);
+		}
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[VB_POS]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions[0]) * positions.size(), &positions[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	// Normal - attribute 1
+	std::vector<glm::vec3> normals;
+	for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+		for (uint32_t j = 0; j < parser.get_scene().meshes[i].vertices.size(); j++) {
+			normals.push_back(parser.get_scene().meshes[i].vertices[j].normal);
+		}
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[VB_NORMAL]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals[0]) * normals.size(), &normals[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	// TexCoord - attribute 2
+	std::vector<glm::vec2> texcoords;
+	for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+		for (uint32_t j = 0; j < parser.get_scene().meshes[i].vertices.size(); j++) {
+			texcoords.push_back(parser.get_scene().meshes[i].vertices[j].texcoord);
+		}
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[VB_TEXCOORD]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords[0]) * texcoords.size(), &texcoords[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	// Bone - attribute 3/4
+	typedef struct _bone_buffer
+	{
+		uint32_t bone_idx[MAX_BONES_SLOTS];
+		float bone_weight[MAX_BONES_SLOTS];
+	} bone_buffer_t;
+	std::vector<bone_buffer_t> bones;
+	for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+		for (uint32_t j = 0; j < parser.get_scene().meshes[i].vertices.size(); j++) {
+			bone_buffer_t buffer;
+
+			// Init all map weights to 0.f
+			for (uint32_t k = 0; k < MAX_BONES_SLOTS; k++) {
+				buffer.bone_idx[k] = 0;
+				buffer.bone_weight[k] = 0.f;
+			}
+
+			// Update some map weights
+			uint32_t idx = 0;
+			for (uint32_t k = 0; k < parser.get_scene().meshes[i].vertices[j].weights1.size(); k++) {
+				uint32_t bone_idx = parser.get_scene().meshes[i].vertices[j].weights1[k].bone_idx;
+				float bone_weight = parser.get_scene().meshes[i].vertices[j].weights1[k].bone_weight;
+
+				if (idx >= MAX_BONES_SLOTS)
+					break;
+				buffer.bone_idx[idx] = bone_idx;
+				buffer.bone_weight[idx] = bone_weight;
+				++idx;
+			}
+			bones.push_back(buffer);
+		}
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[VB_BONE]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bones[0]) * bones.size(), &bones[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, MAX_BONES_SLOTS, GL_INT, sizeof(bone_buffer_t), (const GLvoid*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, MAX_BONES_SLOTS, GL_FLOAT, GL_FALSE, sizeof(bone_buffer_t), (const GLvoid*)16);
+	
+	// Index
+	std::vector<uint32_t> indices;
+	for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+		parser.get_scene().meshes[i].base_indices = indices.size();
+		indices.insert(indices.end(), parser.get_scene().meshes[i].indices.begin(),
+			parser.get_scene().meshes[i].indices.end());
+	}
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBOs[VB_INDEX]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+	// Texture (Only support diffuse now)
+	std::map<std::string, GLuint> textures;
+	for (uint32_t i = 0; i < parser.get_scene().materials.size(); i++) {
+		if (parser.get_scene().materials[i].diffuses.size() > 0) {
+			std::map<std::string, GLuint>::iterator iter = textures.find(parser.get_scene().materials[i].diffuses[0].path);
+			if (iter == textures.end()) {
+				GLuint TEX;
+				glGenTextures(1, &TEX);
+				glBindTexture(GL_TEXTURE_2D, TEX);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				int width, height, channels;
+				//stbi_set_flip_vertically_on_load(true);
+				uint8_t *data_ptr = stbi_load(parser.get_scene().materials[i].diffuses[0].path.c_str(), &width, &height, &channels, 0);
+				if (NULL != data_ptr) {
+					if (4 == channels) {
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_ptr);
+					}
+					else {
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_ptr);
+					}
+					glGenerateMipmap(GL_TEXTURE_2D);
+				}
+				else {
+					cout << "Failed to load texture - " << parser.get_scene().materials[i].diffuses[0].path << endl;
+					return -1;
+				}
+				stbi_image_free(data_ptr);
+
+				textures[parser.get_scene().materials[i].diffuses[0].path] = TEX;
+			}
+		}
+	}
+
+	glBindVertexArray(0);
+	//////////////////////////////////////////////////////
 
 	// Main loop
+	float start_sec = glfwGetTime();
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window_ptr))
 	{
@@ -162,7 +321,39 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "view"), 1, FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "projection"), 1, FALSE, glm::value_ptr(projection));
-		models.draw(shader.get_id());
+		//models.draw(shader.get_id());
+
+		// Bones transform
+		std::vector<glm::mat4> trans;
+		float time_sec = glfwGetTime() - start_sec;
+		parser.transform(time_sec, trans);
+		for (uint32_t i = 0; i < trans.size(); i++) {
+			std::string str = "bones[" + std::to_string(i) + "]";
+			glm::mat4 tran = glm::transpose(trans[i]);
+			glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), str.c_str()), 1, GL_TRUE, (const GLfloat*)glm::value_ptr(tran));
+		}
+
+		glBindVertexArray(VAO);
+		for (uint32_t i = 0; i < parser.get_scene().meshes.size(); i++) {
+			// Textures
+			//if (animation.get_scene().meshes[i].material_idx >= animation.get_scene().materials.size())
+			//	continue;
+			//
+			// TODO ...
+
+			if (parser.get_scene().materials[parser.get_scene().meshes[i].material_idx].diffuses.size() > 0) {
+				glActiveTexture(GL_TEXTURE0);
+				glUniform1i(glGetUniformLocation(shader.get_id(), "texture_diffuse1"), 0);
+				glBindTexture(GL_TEXTURE_2D, textures[parser.get_scene().materials[parser.get_scene().meshes[i].material_idx].diffuses[0].path]);
+			}
+
+			glDrawElementsBaseVertex(GL_TRIANGLES,
+				parser.get_scene().meshes[i].indices.size(),
+				GL_UNSIGNED_INT,
+				(void*)(sizeof(uint32_t) * parser.get_scene().meshes[i].base_indices),
+				parser.get_scene().meshes[i].base_vertices);
+		}
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window_ptr);
 		glfwPollEvents();
